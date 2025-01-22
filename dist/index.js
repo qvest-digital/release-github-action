@@ -37142,11 +37142,28 @@ async function run() {
     const octokit = github.getOctokit(authentication.token);
     const { owner, repo } = github.context.repo;
 
-    // Debug information
-    core.debug(`Token: ${token}`);
-    core.debug(`Owner: ${owner}`);
-    core.debug(`Repo: ${repo}`);
-    core.debug(`Octokit: ${JSON.stringify(octokit)}`);
+    // Check if the event is a pull request
+    if (github.context.eventName !== 'pull_request') {
+      throw new Error('This action only works for pull_request events');
+    }
+
+    const pullRequest = github.context.payload.pull_request;
+    if (!pullRequest) {
+      throw new Error('Pull request payload is missing');
+    }
+
+    const pullNumber = pullRequest.number;
+
+    // Get commits from the pull request
+    const commits = await octokit.rest.pulls.listCommits({
+      owner,
+      repo,
+      pull_number: pullNumber,
+    });
+
+    // Log only the commit messages
+    const commitMessages = commits.data.map(commit => commit.commit.message);
+    core.info(`Commit messages: ${JSON.stringify(commitMessages)}`);
 
     // Get all tags
     const tags = await octokit.rest.repos.listTags({
@@ -37159,18 +37176,6 @@ async function run() {
 
     // Get the latest tag
     const latestTag = sortedTags[0];
-
-    // Get commits since the latest tag
-    const commits = await octokit.rest.repos.listCommits({
-      owner,
-      repo,
-      sha: 'main',
-      since: latestTag ? (await octokit.rest.git.getTag({ owner, repo, tag_sha: latestTag })).data.tagger.date : undefined,
-    });
-
-    // Log only the commit messages
-    const commitMessages = commits.data.map(commit => commit.commit.message);
-    core.info(`Commit messages: ${JSON.stringify(commitMessages)}`);
 
     // Determine the next version
     let nextVersion = latestTag ? semver.inc(latestTag, 'patch') : '1.0.0';
@@ -37201,12 +37206,7 @@ async function run() {
 
     core.setOutput('release-url', response.data.html_url);
   } catch (error) {
-    core.setFailed(`Action failed with error: ${error.message}`);
-  }
-}
-
-run();
-
+    core.setFailed(`Action failed with error: ${error.message}`);  }}run();
 module.exports = __webpack_exports__;
 /******/ })()
 ;
