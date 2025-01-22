@@ -4,7 +4,7 @@ const semver = require('semver');
 
 async function run() {
   try {
-    const token = core.getInput('repo-token');
+    const token = core.getInput('GITHUB_TOKEN');
     if (!token) {
       throw new Error('GitHub token is not provided');
     }
@@ -44,6 +44,10 @@ async function run() {
       sha: 'main',
       since: latestTag ? (await octokit.rest.git.getTag({ owner, repo, tag_sha: latestTag })).data.tagger.date : undefined,
     });
+
+    // Log only the commit messages
+    const commitMessages = commits.data.map(commit => commit.commit.message);
+    core.info(`Commit messages: ${JSON.stringify(commitMessages)}`);
 
     // Determine the next version
     let nextVersion = latestTag ? semver.inc(latestTag, 'patch') : '1.0.0';

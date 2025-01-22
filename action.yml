@@ -2,7 +2,7 @@ name: 'Create Release'
 description: 'A GitHub Action to create a release'
 author: 'Volker Schmitz'
 inputs:
-  repo-token:
+  GITHUB_TOKEN:
     description: 'GitHub token with repo scope'
     required: true
   trigger-release:
