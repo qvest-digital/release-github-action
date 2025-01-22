@@ -28,6 +28,3 @@ jobs:
         uses: ./
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          release-tag: 'v1.0.0'
-          release-name: 'Test Release'
-          release-body: 'This is a test release'

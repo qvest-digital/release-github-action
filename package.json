@@ -1,0 +1,26 @@
+{
+  "name": "release-gh-action",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qvest-digital/release-github-action.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/qvest-digital/release-github-action/issues"
+  },
+  "homepage": "https://github.com/qvest-digital/release-github-action#readme",
+  "description": "",
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
+    "semver": "^7.3.5"
+  }
+}

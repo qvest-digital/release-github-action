@@ -5,12 +5,27 @@ const semver = require('semver');
 async function run() {
   try {
     const token = core.getInput('repo-token');
+    if (!token) {
+      throw new Error('GitHub token is not provided');
+    }
+
     const majorKeyword = core.getInput('major-keyword') || 'BREAKING_CHANGE';
     const minorKeywords = core.getInput('minor-keywords') || 'fix,feat';
     const triggerRelease = core.getInput('trigger-release') === 'true';
 
     const octokit = github.getOctokit(token);
     const { owner, repo } = github.context.repo;
+
+    // Debug information
+    core.debug(`Token: ${token}`);
+    core.debug(`Owner: ${owner}`);
+    core.debug(`Repo: ${repo}`);
+    core.debug(`Octokit: ${JSON.stringify(octokit)}`);
+
+    // Check if octokit.repos is defined
+    if (!octokit.repos) {
+      throw new Error('octokit.repos is undefined');
+    }
 
     // Get all tags
     const tags = await octokit.repos.listTags({
