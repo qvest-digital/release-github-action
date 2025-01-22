@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "build": "ncc build src/action.js -o dist",
     "test": "echo \"Error: no test specified\" && exit 0"
   },
   "repository": {
@@ -10,8 +11,8 @@
     "url": "git+https://github.com/qvest-digital/release-github-action.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Volker Schmitz",
+  "license": "MIT",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/qvest-digital/release-github-action/issues"
@@ -21,6 +22,8 @@
   "dependencies": {
     "@actions/core": "^1.6.0",
     "@actions/github": "^5.0.0",
+    "@octokit/auth-action": "^5.1.1",
+    "@vercel/ncc": "^0.38.3",
     "semver": "^7.3.5"
   }
 }

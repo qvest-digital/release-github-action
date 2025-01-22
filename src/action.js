@@ -13,7 +13,10 @@ async function run() {
     const minorKeywords = core.getInput('minor-keywords') || 'fix,feat';
     const triggerRelease = core.getInput('trigger-release') === 'true';
 
-    const octokit = github.getOctokit(token);
+    const { createActionAuth } = await import('@octokit/auth-action');
+    const auth = createActionAuth();
+    const authentication = await auth();
+    const octokit = github.getOctokit(authentication.token);
     const { owner, repo } = github.context.repo;
 
     // Debug information
@@ -22,13 +25,8 @@ async function run() {
     core.debug(`Repo: ${repo}`);
     core.debug(`Octokit: ${JSON.stringify(octokit)}`);
 
-    // Check if octokit.repos is defined
-    if (!octokit.repos) {
-      throw new Error('octokit.repos is undefined');
-    }
-
     // Get all tags
-    const tags = await octokit.repos.listTags({
+    const tags = await octokit.rest.repos.listTags({
       owner,
       repo,
     });
@@ -40,11 +38,11 @@ async function run() {
     const latestTag = sortedTags[0];
 
     // Get commits since the latest tag
-    const commits = await octokit.repos.listCommits({
+    const commits = await octokit.rest.repos.listCommits({
       owner,
       repo,
       sha: 'main',
-      since: latestTag ? (await octokit.git.getTag({ owner, repo, tag_sha: latestTag })).data.tagger.date : undefined,
+      since: latestTag ? (await octokit.rest.git.getTag({ owner, repo, tag_sha: latestTag })).data.tagger.date : undefined,
     });
 
     // Determine the next version
@@ -66,7 +64,7 @@ async function run() {
     }
 
     // Create the release
-    const response = await octokit.repos.createRelease({
+    const response = await octokit.rest.repos.createRelease({
       owner,
       repo,
       tag_name: nextVersion,
