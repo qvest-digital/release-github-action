@@ -41,6 +41,7 @@ async function run() {
     // Log only the commit messages
     const commitMessages = commits.data.map(commit => commit.commit.message);
     core.info(`Commit messages: ${JSON.stringify(commitMessages)}`);
+    console.log(`Commit messages: ${JSON.stringify(commitMessages)}`);
 
     // Get all tags
     const tags = await octokit.rest.repos.listTags({
@@ -99,3 +100,5 @@ async function run() {
 }
 
 run();
+
+module.exports = { run };
