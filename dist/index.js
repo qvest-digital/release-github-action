@@ -37133,7 +37133,7 @@ async function run() {
     }
 
     const majorKeyword = core.getInput('major-keyword') || 'BREAKING_CHANGE';
-    const minorKeywords = core.getInput('minor-keywords') || 'fix,feat';
+    const minorKeywords = core.getInput('minor-keywords') || 'feat';
     const triggerRelease = core.getInput('trigger-release') === 'true';
 
     const { createActionAuth } = await __nccwpck_require__.e(/* import() */ 9).then(__nccwpck_require__.bind(__nccwpck_require__, 9009));
@@ -37178,16 +37178,27 @@ async function run() {
     const latestTag = sortedTags[0];
 
     // Determine the next version
-    let nextVersion = latestTag ? semver.inc(latestTag, 'patch') : '1.0.0';
+    let nextVersion;
+    if (!latestTag) {
+      core.info('No tags found in the repository. Starting from version 0.0.0.');
+      nextVersion = '0.0.0';
+    } else {
+      nextVersion = latestTag;
+    }
+
     for (const commit of commits.data) {
       const message = commit.commit.message;
-      if (message.includes(majorKeyword)) {
-        nextVersion = semver.inc(latestTag, 'major');
+      if (minorKeywords.split(',').some(keyword => message.includes(keyword))) {
+        nextVersion = semver.inc(nextVersion, 'minor');
+        break;
+      } else {
+        nextVersion = semver.inc(nextVersion, 'patch');
         break;
       }
-      if (minorKeywords.split(',').some(keyword => message.includes(keyword))) {
-        nextVersion = semver.inc(latestTag, 'minor');
-      }
+    }
+
+    if (!nextVersion) {
+      throw new Error('Failed to determine the next version');
     }
 
     if (!triggerRelease) {
@@ -37206,7 +37217,11 @@ async function run() {
 
     core.setOutput('release-url', response.data.html_url);
   } catch (error) {
-    core.setFailed(`Action failed with error: ${error.message}`);  }}run();
+    core.setFailed(`Action failed with error: ${error.message}`);
+  }
+}
+
+run();
 module.exports = __webpack_exports__;
 /******/ })()
 ;

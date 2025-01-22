@@ -10,7 +10,7 @@ async function run() {
     }
 
     const majorKeyword = core.getInput('major-keyword') || 'BREAKING_CHANGE';
-    const minorKeywords = core.getInput('minor-keywords') || 'fix,feat';
+    const minorKeywords = core.getInput('minor-keywords') || 'feat';
     const triggerRelease = core.getInput('trigger-release') === 'true';
 
     const { createActionAuth } = await import('@octokit/auth-action');
@@ -60,18 +60,22 @@ async function run() {
       core.info('No tags found in the repository. Starting from version 0.0.0.');
       nextVersion = '0.0.0';
     } else {
-      nextVersion = semver.inc(latestTag, 'patch');
+      nextVersion = latestTag;
     }
 
     for (const commit of commits.data) {
       const message = commit.commit.message;
-      if (message.includes(majorKeyword)) {
-        nextVersion = semver.inc(nextVersion, 'major');
-        break;
-      }
       if (minorKeywords.split(',').some(keyword => message.includes(keyword))) {
         nextVersion = semver.inc(nextVersion, 'minor');
+        break;
+      } else {
+        nextVersion = semver.inc(nextVersion, 'patch');
+        break;
       }
+    }
+
+    if (!nextVersion) {
+      throw new Error('Failed to determine the next version');
     }
 
     if (!triggerRelease) {
