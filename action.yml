@@ -1,0 +1,23 @@
+name: 'Create Release'
+description: 'A GitHub Action to create a release'
+author: 'Your Name'
+inputs:
+  repo-token:
+    description: 'GitHub token with repo scope'
+    required: true
+  release-tag:
+    description: 'Tag for the release'
+    required: true
+  release-name:
+    description: 'Name of the release'
+    required: true
+  release-body:
+    description: 'Description of the release'
+    required: false
+  trigger-release:
+    description: 'If set to true, the action will create a release'
+    required: false
+    default: ${{ github.event.pull_request.merged }}
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

@@ -1,0 +1,33 @@
+name: Test Release Action
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run Release Action
+        uses: ./
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: 'v1.0.0'
+          release-name: 'Test Release'
+          release-body: 'This is a test release'
